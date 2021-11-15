@@ -38,9 +38,9 @@ import Data.Char( chr, ord )
 --------------------------------------------------------------------------------
 
 -- | An enumeration of a finite or countably infinite set of values.
---   An enumeration is represented as two functions: a mapping from values to
---   naturals (encode) and a (possible partial) mapping from naturals to values
---  (decode).
+--   An enumeration is represented as a pair of functions: a mapping from values 
+--   to naturals (encode) and a (possible partial) mapping from naturals to 
+--   values (decode).
 class Enumerable a where
     -- | 'encode' is used to get the index of an element of the enumeration.
     encode :: a -> Integer
@@ -54,7 +54,7 @@ class Enumerable a where
     enumerate :: [a]
     enumerate = mapMaybe decode [1..]
 
--- | Generic enumerable class.
+-- | Generic enumerable class for deriving instances.
 class Enumerable' f where
     encode' :: f a -> Integer
     decode' :: Integer -> Maybe (f a)
@@ -105,7 +105,8 @@ upto :: (Num n, Integral n) => n -> n
 upto n = div (n*(n+1)) 2
 
 upto' :: (Num n, Integral n) => n -> n
-upto' x = head [n | n <- [1..], upto n >= x] - 1
+--upto' x = head [n | n <- [1..], upto n >= x] - 1
+upto' x = ceiling ((-1 + sqrt (1 + 8 * fromIntegral x)) / 2) - 1
 
 -- | Integers.
 -- 0, 1, -1, 2, -2, 3, -3, ...
