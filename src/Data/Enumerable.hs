@@ -29,7 +29,7 @@ module Data.Enumerable
       Enumerable(..)
     ) where
 
-import GHC.Generics( V1, U1(..), M1(M1), type (:+:)(..), type (:*:)(..), K1 (K1), Generic (Rep, from, to) )
+import GHC.Generics( V1, U1(..), K1(K1), M1(M1), type (:+:)(..), type (:*:)(..), Generic(Rep, from, to) )
 import Data.Maybe( mapMaybe )
 import Data.Char( chr, ord )
 
@@ -104,8 +104,8 @@ instance (Enumerable' a, Enumerable' b) => Enumerable' (a :*: b) where
 upto :: (Num n, Integral n) => n -> n
 upto n = div (n*(n+1)) 2
 
+-- upto' x = head [n | n <- [1..], upto n >= x] - 1
 upto' :: (Num n, Integral n) => n -> n
---upto' x = head [n | n <- [1..], upto n >= x] - 1
 upto' x = ceiling ((-1 + sqrt (1 + 8 * fromIntegral x)) / 2) - 1
 
 -- | Integers.
@@ -128,7 +128,15 @@ decodeNum n | n == 1 = Just 0
             | even n = Just (div (fromInteger n) 2)
             | otherwise = Just (- div (fromInteger n-1) 2)
 
+-- | Non-negative numbers.
+-- 0, 1, 2, 3, 4, ...
+instance Enumerable Word where
+    encode = fromIntegral . (1+)
+    decode n | n > 0 = Just $ fromIntegral n - 1
+             | otherwise = Nothing
+
 -- | Characters.
+-- \NUL, \SOH, \STX, \ETX, \EOT, ...
 instance Enumerable Char where
     encode = fromIntegral . (1+) . ord
     decode n | n > 0 = Just (chr $ fromIntegral n - 1)
