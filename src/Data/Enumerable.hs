@@ -105,8 +105,26 @@ upto :: (Num n, Integral n) => n -> n
 upto n = div (n*(n+1)) 2
 
 -- upto' x = head [n | n <- [1..], upto n >= x] - 1
-upto' :: (Num n, Integral n) => n -> n
-upto' x = ceiling ((-1 + sqrt (1 + 8 * fromIntegral x)) / 2) - 1
+-- upto' x = ceiling ((-1 + sqrt (1 + 8 * fromIntegral x)) / 2) - 1
+upto' :: Integer -> Integer
+upto' x = let r = squareRoot (1 + 8 * x)
+              r' = if r*r == 1 + 8 * x then r else r+1
+              r'' = if odd r' then r' else r'+1
+          in div (-1 + r'') 2 - 1
+
+-- | Square root for arbitrary-integer arithmetic.
+--   https://wiki.haskell.org/Generic_number_type#squareRoot
+squareRoot :: Integer -> Integer
+squareRoot 0 = 0
+squareRoot 1 = 1
+squareRoot n =
+    let twopows = iterate (^2) 2
+        (lowerRoot, lowerN) =
+            last $ takeWhile ((n>=) . snd) $ zip (1:twopows) twopows
+        newtonStep x = div (x + div n x) 2
+        iters = iterate newtonStep (squareRoot (div n lowerN) * lowerRoot)
+        isRoot r  =  r^2 <= n && n < (r+1)^2
+    in  head $ dropWhile (not . isRoot) iters
 
 -- | Integers.
 -- 0, 1, -1, 2, -2, 3, -3, ...
