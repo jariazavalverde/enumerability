@@ -30,6 +30,8 @@ module Data.Enumerable
 import GHC.Generics( V1, U1(..), K1(K1), M1(M1), type (:+:)(..), type (:*:)(..), Generic(Rep, from, to) )
 import Data.Maybe( mapMaybe )
 import Data.Char( chr, ord )
+import Data.Ratio( Ratio, (%), numerator, denominator )
+import Control.Monad( guard )
 
 --------------------------------------------------------------------------------
 -- Enumerable types
@@ -133,8 +135,13 @@ instance Enumerable Word where
     decode n | n > 0 = Just $ fromIntegral n - 1
              | otherwise = Nothing
 
--- | Real numbers.
-
+-- | Rational numbers.
+-- 0/1, 1/1, (-1)/1, 2/1, ...
+instance (Enumerable a, Integral a) => Enumerable (Ratio a) where
+    encode n = encode (numerator n, denominator n)
+    decode n = do (a,b) <- decode n
+                  guard (b /= 0)
+                  return (a % b)
 
 -- | Characters.
 -- \NUL, \SOH, \STX, \ETX, \EOT, ...
