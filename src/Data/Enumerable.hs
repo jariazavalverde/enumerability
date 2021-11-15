@@ -1,8 +1,6 @@
-{-# LANGUAGE TypeOperators      #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DefaultSignatures  #-}
-{-# LANGUAGE DeriveAnyClass     #-}
-{-# LANGUAGE FlexibleContexts   #-}
+{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts  #-}
 
 -- SPDX-License-Identifier: BSD-3-Clause
 
@@ -135,6 +133,9 @@ instance Enumerable Word where
     decode n | n > 0 = Just $ fromIntegral n - 1
              | otherwise = Nothing
 
+-- | Real numbers.
+
+
 -- | Characters.
 -- \NUL, \SOH, \STX, \ETX, \EOT, ...
 instance Enumerable Char where
@@ -143,15 +144,15 @@ instance Enumerable Char where
              | otherwise = Nothing
 
 -- | Automatic derived instances.
-deriving instance Enumerable Bool
-deriving instance Enumerable Ordering
-deriving instance (Enumerable a) => Enumerable [a]
-deriving instance (Enumerable a) => Enumerable (Maybe a)
-deriving instance (Enumerable a, Enumerable b) => Enumerable (Either a b)
-deriving instance Enumerable ()
-deriving instance (Enumerable a, Enumerable b) => Enumerable (a,b)
-deriving instance (Enumerable a, Enumerable b, Enumerable c) => Enumerable (a,b,c)
-deriving instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d) => Enumerable (a,b,c,d)
-deriving instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e) => Enumerable (a,b,c,d,e)
-deriving instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e, Enumerable f) => Enumerable (a,b,c,d,e,f)
-deriving instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e, Enumerable f, Enumerable g) => Enumerable (a,b,c,d,e,f,g)
+instance Enumerable Bool
+instance Enumerable Ordering
+instance (Enumerable a) => Enumerable [a]
+instance (Enumerable a) => Enumerable (Maybe a)
+instance (Enumerable a, Enumerable b) => Enumerable (Either a b)
+instance Enumerable ()
+instance (Enumerable a, Enumerable b) => Enumerable (a,b)
+instance (Enumerable a, Enumerable b, Enumerable c) => Enumerable (a,b,c)
+instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d) => Enumerable (a,b,c,d)
+instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e) => Enumerable (a,b,c,d,e)
+instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e, Enumerable f) => Enumerable (a,b,c,d,e,f)
+instance (Enumerable a, Enumerable b, Enumerable c, Enumerable d, Enumerable e, Enumerable f, Enumerable g) => Enumerable (a,b,c,d,e,f,g)
