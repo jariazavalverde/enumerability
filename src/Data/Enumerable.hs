@@ -162,6 +162,14 @@ instance Enumerable Char where
     decode n | n > 0 = Just (chr $ fromIntegral n - 1)
              | otherwise = Nothing
 
+-- | Functions.
+instance (Bounded a, Enum a, Enumerable b) => Enumerable (a -> b) where
+    encode f = encode $ map f [minBound..maxBound] 
+    decode n = case decode n of
+        Nothing -> Nothing
+        Just xs -> Just (\x ->
+            xs !! (fromEnum x - fromEnum (minBound `asTypeOf` x)))
+
 -- | Automatic derived instances.
 instance Enumerable Bool
 instance Enumerable Ordering
