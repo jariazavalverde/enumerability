@@ -101,12 +101,12 @@ instance (Enumerable' a, Enumerable' b) => Enumerable' (a :*: b) where
                     a = k - b + 2
                 in (:*:) <$> decode' a <*> decode' b
 
--- | Sum from one to n
+-- | Sum from one to n.
 -- sum [1..n] = n*(n+1) / 2
 sumOneTo :: (Num n, Integral n) => n -> n
 sumOneTo n = div (n*(n+1)) 2
 
--- | Inverse sum one to n
+-- | Inverse sum one to n.
 -- x = sum [1..n] => n = (sqrt(1+8x)-1) / 2
 invSumOneTo :: Integer -> Integer
 invSumOneTo x = let n = div (floorSqrt (1+8*x) - 1) 2
