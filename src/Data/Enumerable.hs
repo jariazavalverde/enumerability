@@ -179,10 +179,18 @@ instance (Enumerable a) => Enumerable (Maybe a) where
              | n > 1 = Just <$> decode (n-1)
              | otherwise = Nothing
 
+-- | Lists.
+-- [], [1], [2], [1,1], [3], [2,1], [1,2], [4], [3,1], [2,2], [1,1,1], ...
+instance (Enumerable a) => Enumerable [a] where
+    encode [] = 1
+    encode (x:xs) = 1 + encode (x,xs)
+    decode n | n == 1 = Just []
+             | n > 1 = uncurry (:) <$> decode (n-1)
+             | otherwise = Nothing
+
 -- | Automatic derived instances.
 instance Enumerable Bool
 instance Enumerable Ordering
-instance (Enumerable a) => Enumerable [a]
 instance (Enumerable a, Enumerable b) => Enumerable (Either a b)
 instance Enumerable ()
 instance (Enumerable a, Enumerable b) => Enumerable (a,b)
