@@ -74,6 +74,12 @@ instance (Countable' a, Countable' b) => Countable' (a :*: b) where
         where a = recount (count' (undefined :: a ()))
               b = recount (count' (undefined :: b ()))
 
+-- | Functions.
+instance (Countable a, Countable b) => Countable (a -> b) where
+    count = Count (b ^ a)
+        where a = getCount (count :: Count a)
+              b = getCount (count :: Count b)
+
 -- | Automatic derived instances.
 instance Countable Void
 instance Countable Bool
