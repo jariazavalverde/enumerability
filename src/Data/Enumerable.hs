@@ -170,11 +170,19 @@ instance (Bounded a, Enum a, Enumerable b) => Enumerable (a -> b) where
         Just xs -> Just (\x ->
             xs !! (fromEnum x - fromEnum (minBound `asTypeOf` x)))
 
+-- | Maybe.
+-- Nothing, Just 1, Just 2, Just 3, ...
+instance (Enumerable a) => Enumerable (Maybe a) where
+    encode Nothing = 1
+    encode (Just x) = 1 + encode x
+    decode n | n == 1 = Just Nothing
+             | n > 1 = Just <$> decode (n-1)
+             | otherwise = Nothing
+
 -- | Automatic derived instances.
 instance Enumerable Bool
 instance Enumerable Ordering
 instance (Enumerable a) => Enumerable [a]
-instance (Enumerable a) => Enumerable (Maybe a)
 instance (Enumerable a, Enumerable b) => Enumerable (Either a b)
 instance Enumerable ()
 instance (Enumerable a, Enumerable b) => Enumerable (a,b)
