@@ -1,7 +1,7 @@
-{-# LANGUAGE TypeOperators     #-}
-{-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE DefaultSignatures   #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.Countable
     ( -- * Countable types
@@ -11,6 +11,7 @@ module Data.Countable
 
 import GHC.Generics( V1, U1(..), K1(K1), M1(M1), type (:+:)(..), type (:*:)(..), Generic(Rep, from) )
 import Data.Void( Void )
+import Data.Ratio( Ratio, (%), numerator, denominator )
 
 newtype Count a = Count { getCount :: Integer }
     deriving (Ord, Eq, Read, Show)
@@ -41,42 +42,66 @@ class Countable' f where
     {-# MINIMAL count' #-}
 
 -- | Empty type.
--- 0
+-- |{}| = 0
 instance Countable' V1 where
     count' _ = Count 0
 
 -- | Unit type ().
--- 1
+-- |{()}| = 1
 instance Countable' U1 where
     count' _ = Count 1
 
 -- | Meta-information.
--- n
+-- id
 instance (Countable' a) => Countable' (M1 i c a) where
     count' _ = recount $ count' (undefined :: a ())
 
 -- | Constants.
--- n
+-- id
 instance (Countable a) => Countable' (K1 i a) where
     count' _ = recount (count :: Count a)
 
 -- | Sum of types.
--- n+m
+-- |a+b| = |a| + |b|
 instance (Countable' a, Countable' b) => Countable' (a :+: b) where
     count' _ = a + b
         where a = recount (count' (undefined :: a ()))
               b = recount (count' (undefined :: b ()))
 
 -- | Cartesian product of types.
--- n*m
+-- |a*b| = |a| * |b|
 instance (Countable' a, Countable' b) => Countable' (a :*: b) where
     count' _ = a * b
         where a = recount (count' (undefined :: a ()))
               b = recount (count' (undefined :: b ()))
 
+-- | Numbers.
+-- |Int| = 1 + maxBound - minBound
+instance Countable Int where
+    count = Count (1 + toInteger (maxBound :: Int) - toInteger (minBound :: Int))
+
+-- |Integer| = Infinite
+instance Countable Integer where
+    count = 1 + count
+
+-- |Word| = 1 + maxBound
+instance Countable Word where
+    count = Count (1 + toInteger (maxBound :: Word))
+
+-- | Rational numbers.
+-- |(Ratio a)| = |a| * |a|
+instance Countable a => Countable (Ratio a) where
+    count = let a = count :: Count a in recount (a*a)
+
+-- | Characters.
+-- |Char| = 1 + maxBound
+instance Countable Char where
+    count = Count (1 + toInteger (fromEnum (maxBound :: Char)))
+
 -- | Functions.
+-- |(a -> b)| = |b| ^ |a|
 instance (Countable a, Countable b) => Countable (a -> b) where
-    count = Count (b ^ a)
+    count = if b == 0 then Count 0 else Count (b ^ a)
         where a = getCount (count :: Count a)
               b = getCount (count :: Count b)
 
