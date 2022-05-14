@@ -3,16 +3,42 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- SPDX-License-Identifier: BSD-3-Clause
+
+--------------------------------------------------------------------------------
+-- |
+-- Module      :  Data.Countable
+-- Copyright   :  José A. Riaza
+-- Maintainer  :  riaza.valverde@gmail.com
+--
+-- A type is a set of possible values. This module provides the 'Countable'
+-- class, which computes the cardinality of any instance type.
+-- >>> count :: Count Bool
+-- Count {getCount = 2}
+-- >>> count :: Count Bool
+-- Count {getCount = 2}
+-- count :: Count (Bool -> Bool -> Bool)
+-- Count {getCount = 16}
+-- count :: Count [Void]
+-- Count {getCount = 1}
+--
+-- Some types can have infinite values, in which case the count may not finish.
+--------------------------------------------------------------------------------
+
 module Data.Countable
     ( -- * Countable types
       Countable(..),
-      Count(..)
+      Count(..),
+      recount,
+      countTypeOf
     ) where
 
 import GHC.Generics( V1, U1(..), K1(K1), M1(M1), type (:+:)(..), type (:*:)(..), Generic(Rep, from) )
 import Data.Void( Void )
-import Data.Ratio( Ratio, (%), numerator, denominator )
+import Data.Ratio( Ratio )
 
+-- | Count
+-- Number of elements of a type.
 newtype Count a = Count { getCount :: Integer }
     deriving (Ord, Eq, Read, Show)
 
@@ -28,10 +54,20 @@ instance Num (Count a) where
     fromInteger n | n >= 0 = Count n
                   | otherwise = Count 0
 
+-- | recount
+-- Change the count type.
 recount :: Count a -> Count b
 recount (Count x) = Count x
 
+-- | countTypeOf
+-- Count the number of elements of the parameter's type.
+countTypeOf :: Countable a => a -> Count a
+countTypeOf (_ :: a) = count :: Count a
+
+-- | A type is a set of possible values. The 'Countable' class allows to get
+--   the cardinality of a type, i.e., the number of elements in the type.
 class Countable a where
+    -- | 'count' is used to get the cardinality of the type.
     count :: Count a
     default count :: (Generic a, Countable' (Rep a)) => Count a
     count = recount $ count' (from (undefined :: a))

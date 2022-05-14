@@ -11,8 +11,10 @@
 -- Maintainer  :  riaza.valverde@gmail.com
 --
 -- An enumeration is a complete, ordered listing of all the items in a 
--- collection. Enumerations are represented as functions from indices to values
--- (a mapping from natural numbers to elements of the collection).
+-- collection. This module provides the 'Enumerable' class, which computes the
+-- enumeration of any instance type. Enumerations are represented as functions
+-- from indices to values (a mapping from natural numbers to elements of the
+-- collection).
 -- >>> take 20 $ enumerate :: [Int]
 -- [0,1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,9,-9,10]
 -- >>> take 10 $ enumerate :: [(Int, Bool)]
