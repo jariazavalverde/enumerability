@@ -1,0 +1,28 @@
+cabal-version:  >= 1.6
+
+name:           enumerability
+version:        1.0.0
+synopsis:       Enumerable and countable data types
+description:    An enumeration is a complete, ordered listing of all the items in a collection.
+                Enumerations are represented as functions from indices to values (a mapping from natural numbers to elements of the collection).
+                The mapping can be partial (i.e. the enumeration may contain "holes") and elements can be repeated, as long as they all appear at least once.
+                A type is a set of possible values.
+                This package provides classes for enumerate and count almost any datatype.
+category:       Data
+homepage:       https://github.com/jariazavalverde/enumerability
+bug-reports:    https://github.com/jariazavalverde/enumerability/issues
+author:         José A. Riaza Valverde
+maintainer:     riaza.valverde@gmail.com
+copyright:      Copyright (c) 2021-2022 José A. Riaza Valverde
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/jariazavalverde/enumerability
+
+library
+  exposed-modules:
+    Data.Enumerable
+    Data.Countable

@@ -19,6 +19,10 @@
 -- [0,1,-1,2,-2,3,-3,4,-4,5,-5,6,-6,7,-7,8,-8,9,-9,10]
 -- >>> take 10 $ enumerate :: [(Int, Bool)]
 -- [(0,False),(1,False),(0,True),(-1,False),(1,True),(2,False),(-1,True),(-2,False),(2,True),(3,False)]
+-- >>> encode not
+-- 6
+-- >>> (decode 6 :: Maybe (Bool -> Bool)) <*> Just True
+-- Just False
 --
 -- The mapping can be partial (i.e. the enumeration may contain "holes") and
 -- elements can be repeated, as long as they all appear at least once.

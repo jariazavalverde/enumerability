@@ -15,11 +15,9 @@
 -- class, which computes the cardinality of any instance type.
 -- >>> count :: Count Bool
 -- Count {getCount = 2}
--- >>> count :: Count Bool
--- Count {getCount = 2}
--- count :: Count (Bool -> Bool -> Bool)
+-- >>> count :: Count (Bool -> Bool -> Bool)
 -- Count {getCount = 16}
--- count :: Count [Void]
+-- >>> count :: Count [Void]
 -- Count {getCount = 1}
 --
 -- Some types can have infinite values, in which case the count may not finish.
