@@ -112,7 +112,7 @@ instance (Enumerable' a, Enumerable' b) => Enumerable' (a :*: b) where
 sumOneTo :: (Num n, Integral n) => n -> n
 sumOneTo n = div (n*(n+1)) 2
 
--- | Inverse sum one to n.
+-- | Inverse sum from one to n.
 -- x = sum [1..n] => n = (sqrt(1+8x)-1) / 2
 invSumOneTo :: Integer -> Integer
 invSumOneTo x = let n = div (floorSqrt (1+8*x) - 1) 2
