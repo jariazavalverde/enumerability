@@ -9,7 +9,7 @@ import Data.Countable
 
 -- | prop_countable_empty
 -- The cardinality of an empty type should be 0.
--- '|void| = 0'
+-- '|empty| = 0'
 prop_countable_empty :: Bool
 prop_countable_empty = (count :: Count Void) == 0
 

@@ -2,6 +2,9 @@
 {-# LANGUAGE DefaultSignatures   #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 -- SPDX-License-Identifier: BSD-3-Clause
 
@@ -27,7 +30,6 @@ module Data.Countable
     ( -- * Countable types
       Countable(..),
       Count(..),
-      recount,
       countTypeOf
     ) where
 
@@ -37,77 +39,79 @@ import Data.Ratio( Ratio )
 
 -- | Count
 -- Number of elements of a type.
-newtype Count a = Count { getCount :: Integer }
+newtype Count = Count { getCount :: Integer }
     deriving (Ord, Eq, Read, Show)
 
-instance Num (Count a) where
+instance Enum Count where
+    toEnum = Count . toEnum
+    fromEnum (Count n) = fromEnum n
+
+instance Num Count where
     (Count 0) + m = m
     (Count n) + (Count m) = Count (n+m)
     (Count 0) * _ = Count 0
     (Count 1) * m = m
     (Count n) * (Count m) = Count (n*m)
     (Count n) - (Count m) = Count (max 0 (n-m))
-    abs (Count x) = Count (abs x)
+    abs (Count n) = Count (abs n)
     signum (Count n) = Count (signum n)
     fromInteger n | n >= 0 = Count n
                   | otherwise = Count 0
 
--- | recount
--- Change the count type.
-recount :: Count a -> Count b
-recount (Count x) = Count x
+instance Real Count where
+    toRational (Count n) = toRational n
+
+instance Integral Count where
+    toInteger (Count n) = n
+    quotRem (Count n) (Count m) = let (a, b) = quotRem n m in (Count a, Count b)
 
 -- | countTypeOf
 -- Count the number of elements of the parameter's type.
-countTypeOf :: Countable a => a -> Count a
-countTypeOf (_ :: a) = count :: Count a
+countTypeOf :: Countable a => a -> Count
+countTypeOf (_ :: a) = count @a
 
 -- | A type is a set of possible values. The 'Countable' class allows to get
 --   the cardinality of a type, i.e., the number of elements in the type.
 class Countable a where
     -- | 'count' is used to get the cardinality of the type.
-    count :: Count a
-    default count :: (Generic a, Countable' (Rep a)) => Count a
-    count = recount $ count' (from (undefined :: a))
+    count :: Count
+    default count :: (Generic a, Countable' (Rep a)) => Count
+    count = count' @(Rep a)
 
 -- | Generic countable class for deriving instances.
-class Countable' f where
-    count' :: f a -> Count (f a)
+class Countable' (f :: * -> *) where
+    count' :: Count
     {-# MINIMAL count' #-}
 
 -- | Empty type.
 -- |{}| = 0
 instance Countable' V1 where
-    count' _ = Count 0
+    count' = Count 0
 
 -- | Unit type ().
 -- |{()}| = 1
 instance Countable' U1 where
-    count' _ = Count 1
+    count' = Count 1
 
 -- | Meta-information.
 -- id
 instance (Countable' a) => Countable' (M1 i c a) where
-    count' _ = recount $ count' (undefined :: a ())
+    count' = count' @a
 
 -- | Constants.
 -- id
 instance (Countable a) => Countable' (K1 i a) where
-    count' _ = recount (count :: Count a)
+    count' = count @a
 
 -- | Sum of types.
 -- |a+b| = |a| + |b|
 instance (Countable' a, Countable' b) => Countable' (a :+: b) where
-    count' _ = a + b
-        where a = recount (count' (undefined :: a ()))
-              b = recount (count' (undefined :: b ()))
+    count' = count' @a + count' @b
 
 -- | Cartesian product of types.
 -- |a*b| = |a| * |b|
 instance (Countable' a, Countable' b) => Countable' (a :*: b) where
-    count' _ = a * b
-        where a = recount (count' (undefined :: a ()))
-              b = recount (count' (undefined :: b ()))
+    count' = count' @a * count' @b
 
 -- | Numbers.
 -- |Int| = 1 + maxBound - minBound
@@ -116,7 +120,7 @@ instance Countable Int where
 
 -- |Integer| = Infinite
 instance Countable Integer where
-    count = 1 + count
+    count = 1 + count @Integer
 
 -- |Word| = 1 + maxBound
 instance Countable Word where
@@ -125,7 +129,7 @@ instance Countable Word where
 -- | Rational numbers.
 -- |(Ratio a)| = |a| * |a|
 instance Countable a => Countable (Ratio a) where
-    count = let a = count :: Count a in recount (a*a)
+    count = count @a * count @a
 
 -- | Characters.
 -- |Char| = 1 + maxBound
@@ -135,9 +139,9 @@ instance Countable Char where
 -- | Functions.
 -- |(a -> b)| = |b| ^ |a|
 instance (Countable a, Countable b) => Countable (a -> b) where
-    count = if b == 0 then Count 0 else Count (b ^ a)
-        where a = getCount (count :: Count a)
-              b = getCount (count :: Count b)
+    count = if b == 0 then Count 0 else b ^ a
+        where a = count @a
+              b = count @b
 
 -- | Automatic derived instances.
 instance Countable Void
