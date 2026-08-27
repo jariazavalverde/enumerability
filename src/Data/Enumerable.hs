@@ -170,11 +170,12 @@ instance Enumerable Char where
 
 -- | Functions.
 instance (Bounded a, Enum a, Enumerable b) => Enumerable (a -> b) where
-    encode f = encode $ map f [minBound..maxBound] 
+    encode f = encode $ map f [minBound..maxBound]
     decode n = case decode n of
         Nothing -> Nothing
-        Just xs -> Just (\x ->
-            xs !! (fromEnum x - fromEnum (minBound `asTypeOf` x)))
+        Just xs -> if length xs == length [minBound :: a .. maxBound :: a]
+                   then Just (\x -> xs !! (fromEnum x - fromEnum (minBound :: a)))
+                   else Nothing
 
 -- | Maybe.
 -- Nothing, Just 1, Just 2, Just 3, ...
